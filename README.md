@@ -41,8 +41,8 @@ The _Disaster Response_ web app enables an emergency worker to classify text mes
 
 The categorization is based on a machine learning model trained with a dataset of real messages that were sent during disaster events. The web app depicts the contents of such a dataset trough the following visualizations:
 1. A bar chart depicting the distribution of the messages genre according to 3 categories a) direct, b) news, and c) social.
-2. *_TODO_*
-3. *_TODO_*
+2. A bar chart depicting the distribution of the messages according to the 36 categories abovementioned.
+3. A heatmap depicting the percentage of messages in category `x` also in category `y`.
 
 ## Project structure
 The project is composed of the 3 components described following.
@@ -57,10 +57,6 @@ The project is composed of the 3 components described following.
 3. A web app that:
 	* enables an emergency worker to classify text messages, and
 	* depicts the contents of a datasetof real messages trough the three visualizations.
-
-This repository includes the SQLite database containing the dataset of real messages, and a trained model exported as a pickle file. Then, running of the _Disaster Response_ web app only requires following the instructions shown in the _How to run the web app_ section.
-
-In case you want re-generate the SQLite database and the machine learning model, then follow the steps described in the _How to run the Python scripts_ section.
 
 ### Folder structure and files
 The structure of folders and overall content of the files is described following.
@@ -93,7 +89,7 @@ python models/train_classifier.py data/DisasterResponse.db models/classifier.pkl
 ```
 
 ### How to run the web app
-Run the following command in the project's root directory to run the web app:
+Run the following command in the project's app directory to run the web app:
 ```
 python run.py
 ```

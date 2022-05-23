@@ -75,6 +75,9 @@ def clean_data(df):
         # drop duplicates
         df.drop_duplicates(subset=['message'], inplace=True)
         
+        # drop rows with value '2' in column 'related'
+        df.drop(df[df.related==2].index, axis=0, inplace=True)
+        
     except Exception as err:
         raise error
     
@@ -96,7 +99,7 @@ def save_data(df, database_filename):
     
     try:
         engine = create_engine(f'sqlite:///{database_filename}')
-        df.to_sql('data', engine, index=False) 
+        df.to_sql('data', engine, if_exists='replace', index=False) 
     
     except Exception as err:
         raise err

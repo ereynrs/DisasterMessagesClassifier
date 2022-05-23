@@ -1,5 +1,6 @@
 import json
 import plotly
+import numpy as np
 import pandas as pd
 
 from nltk.stem import WordNetLemmatizer
@@ -7,7 +8,7 @@ from nltk.tokenize import word_tokenize
 
 from flask import Flask
 from flask import render_template, request, jsonify
-from plotly.graph_objs import Bar
+from plotly.graph_objs import Bar, Heatmap
 from sklearn.externals import joblib
 from sqlalchemy import create_engine
 
@@ -43,6 +44,30 @@ def index():
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
     
+    # extract the target data
+    categories = df.iloc[:, 4:]
+    # counts the number of occurrences (value != 0) per category
+    categories_counts = categories.apply(lambda x: sum(x != 0)).values
+    # get the category names
+    categories_names = categories.columns.values
+    
+    # matrix of co-ocurrences of classes.
+    # i.e.: number of messages classified both in row `i` and column `j`categories 
+    cooccurr_matrix = np.dot(categories.values.T, categories.values)
+    
+    # coocur matrix is scaled according to the number of messages clasiffied in the row `i`
+    cooccurr_percentage = np.zeros((36,36))
+    for i, _ in enumerate(categories_counts):
+        # for each category, 
+        # if the number of messages in the category is zero, 
+        # then co-occurence is zero as well
+        if categories_counts[i] == 0:
+            cooccurr_percentage[i, :] = 0
+        else:
+            # in other case, calculate the percentage of co-ocurrences
+            # and the round to the second digital place
+            cooccurr_percentage[i, :] = np.round(((cooccurr_matrix[i, :] / categories_counts[i]) * 100), 2)
+    
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
     graphs = [
@@ -61,6 +86,43 @@ def index():
                 },
                 'xaxis': {
                     'title': "Genre"
+                }
+            }
+        }, 
+        {
+            'data': [
+                Bar(
+                    x=categories_names,
+                    y=categories_counts
+                )
+            ],
+            
+            'layout': {
+                'title': 'Number of messages per category',
+                'yaxis': {
+                    'title': "Count",
+                },
+                'xaxis': {
+                    'tickangle': -30
+                }
+            }
+        },
+        {
+            'data': [
+                Heatmap(
+                    z=cooccurr_percentage,
+                    x=categories_names,
+                    y=categories_names
+                )
+            ],
+            
+            'layout': {
+                'title': 'Percentage of messages in category `x` also in category `y`',
+                'yaxis': {
+                    'visible': False
+                }, 
+                'xaxis': {
+                    'visible': False
                 }
             }
         }
